@@ -1,4 +1,4 @@
-# SMART LOST & FOUND
+# SMART LOST & FOUND - Team Alpha NEXUS
 
 A Firebase-backed campus lost-and-found web application. Users can report lost/found items, attach evidence, search listings, see explainable match scores, submit proof-based claims, and update the handover status.
 
