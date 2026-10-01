@@ -4,3 +4,7 @@ cmake-build-*/
 *.obj
 *.exe
 smart-lost-found
+smart_lost_found.db
+smart_lost_found.db-shm
+smart_lost_found.db-wal
+uploads/

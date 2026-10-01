@@ -2,6 +2,8 @@
 #include "httplib.h"
 #include <algorithm>
 #include <cstdlib>
+#include <ctime>
+#include <stdexcept>
 #include <iostream>
 #include <mutex>
 #include <sstream>

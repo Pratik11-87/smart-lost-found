@@ -4,6 +4,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+find_package(SQLite3 REQUIRED)
+find_package(OpenSSL REQUIRED)
 include(FetchContent)
 FetchContent_Declare(
   httplib
@@ -13,7 +15,7 @@ FetchContent_MakeAvailable(httplib)
 
 add_executable(smart-lost-found cpp-web/server.cpp cpp/matcher.cpp)
 target_include_directories(smart-lost-found PRIVATE cpp)
-target_link_libraries(smart-lost-found PRIVATE httplib::httplib)
+target_link_libraries(smart-lost-found PRIVATE httplib::httplib SQLite::SQLite3 OpenSSL::Crypto)
 if(WIN32)
   target_link_libraries(smart-lost-found PRIVATE ws2_32)
 endif()
