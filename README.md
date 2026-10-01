@@ -27,6 +27,7 @@ SMART LOST & FOUND is a campus item recovery application. It lets users record l
 
 ```text
 smart-lost-found/
+├── .gitignore
 ├── cpp/
 │   ├── CMakeLists.txt
 │   ├── main.cpp
@@ -35,8 +36,7 @@ smart-lost-found/
 ├── cpp-web/
 │   ├── CMakeLists.txt
 │   ├── server.cpp
-│   ├── README.md
-│   └── .gitignore
+│   └── README.md
 └── README.md
 ```
 
