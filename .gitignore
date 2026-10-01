@@ -1,7 +1,10 @@
-node_modules
-dist
-.env
-.env.local
-.firebase
-firebase-debug.log
+build/
+matcher-build/
+cmake-build-*/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
 .DS_Store
