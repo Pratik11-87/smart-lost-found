@@ -1,3 +1,6 @@
+# ATTENTION
+This is not a complete production-ready campus system. Reports are currently stored in memory and disappear when the server stops; persistent storage, accounts, photo uploads and claims still need implementation.
+
 # SMART LOST & FOUND
 
 A campus lost-and-found application built with C++17, HTML, and CSS. Students can submit lost or found item reports and review possible matches ranked by a transparent scoring system.
