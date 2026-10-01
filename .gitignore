@@ -1,10 +1,15 @@
-build/
-cmake-build-*/
-*.o
-*.obj
-*.exe
-smart-lost-found
-smart_lost_found.db
-smart_lost_found.db-shm
-smart_lost_found.db-wal
-uploads/
+# Firebase project secrets/config
+firebase-config.js
+.env
+.env.*
+!.env.example
+
+# Firebase local state
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Local dependencies / build output
+node_modules/
+.DS_Store

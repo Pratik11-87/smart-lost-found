@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function ownsReport(reportId) {
+      return signedIn()
+        && get(/databases/$(database)/documents/reports/$(reportId)).data.ownerId == request.auth.uid;
+    }
+
+    match /reports/{reportId} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.type in ['lost', 'found']
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 100
+        && request.resource.data.description is string
+        && request.resource.data.description.size() <= 1200
+        && request.resource.data.location is string
+        && request.resource.data.location.size() <= 160;
+      allow update: if signedIn()
+        && resource.data.ownerId == request.auth.uid
+        && request.resource.data.ownerId == resource.data.ownerId;
+      allow delete: if signedIn() && resource.data.ownerId == request.auth.uid;
+    }
+
+    match /claims/{claimId} {
+      allow create: if signedIn()
+        && request.resource.data.claimantId == request.auth.uid
+        && request.resource.data.reportOwnerId is string
+        && request.resource.data.reportOwnerId != request.auth.uid
+        && request.resource.data.reportId is string
+        && ownsReport(request.resource.data.reportId)
+        && get(/databases/$(database)/documents/reports/$(request.resource.data.reportId)).data.ownerId == request.resource.data.reportOwnerId
+        && request.resource.data.status == 'pending'
+        && request.resource.data.reason is string
+        && request.resource.data.reason.size() > 0
+        && request.resource.data.reason.size() <= 600;
+      allow read: if signedIn()
+        && (resource.data.claimantId == request.auth.uid || resource.data.reportOwnerId == request.auth.uid);
+      allow update: if signedIn()
+        && resource.data.reportOwnerId == request.auth.uid
+        && request.resource.data.reportId == resource.data.reportId
+        && request.resource.data.claimantId == resource.data.claimantId
+        && request.resource.data.reportOwnerId == resource.data.reportOwnerId
+        && request.resource.data.status in ['approved', 'rejected']
+        && resource.data.status == 'pending';
+      allow delete: if signedIn() && (resource.data.claimantId == request.auth.uid || resource.data.reportOwnerId == request.auth.uid);
+    }
+
+    match /users/{userId} {
+      allow read, write: if signedIn() && request.auth.uid == userId;
+    }
+  }
+}

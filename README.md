@@ -1,47 +1,83 @@
-# SMART LOST & FOUND
+# Smart Lost & Found
 
-A campus lost-and-found web application built with C++17, SQLite, HTML, and CSS.
+A community lost-and-found web app built with HTML, CSS, vanilla JavaScript and Firebase.
 
 ## Features
 
-- Account registration and sign-in with salted PBKDF2-HMAC-SHA256 password hashing
-- Persistent storage for users, reports, sessions, and claims using SQLite
-- Report lost or found items with JPEG, PNG, or WebP photos (maximum 5 MB)
-- Browse reports and compare possible matches using an explainable C++ score
-- Submit claims with an explanation
-- Report owners can approve or reject submitted claims
-- Secure random session tokens, HttpOnly cookies, input validation, image type checks, and HTML escaping
+- Email/password registration, login and logout with Firebase Authentication.
+- Persistent lost and found reports stored in Cloud Firestore.
+- Optional JPEG, PNG or WebP photos stored in Firebase Storage (maximum 5 MB).
+- Search by item details, category, report type and location.
+- Match suggestions that combine keyword overlap (55%), location similarity (30%) and time proximity (15%).
+- Claim requests with a verification note and owner approval/rejection.
+- Responsive interface for desktop and mobile.
+- Firebase Hosting deployment.
 
-## Requirements
+## Project files
 
-- C++17 compiler (GCC, Clang, or MSVC)
-- CMake 3.16+
-- SQLite3 development library
-- OpenSSL development library
-- Internet connection on the first build for cpp-httplib
+- `index.html` — app structure and page sections.
+- `styles.css` — responsive visual design.
+- `app.js` — Firebase Authentication, Firestore, Storage, filters and matching logic.
+- `firebase-config.example.js` — template for your Firebase web app configuration.
+- `firestore.rules` — database access rules.
+- `storage.rules` — image upload access rules.
+- `firebase.json` — Hosting and rules deployment configuration.
 
-## Build
+## 1. Create and configure Firebase
+
+1. Open the [Firebase Console](https://console.firebase.google.com/) and create a project.
+2. Add a Web App in Project settings and copy its configuration.
+3. Enable **Authentication → Sign-in method → Email/Password**.
+4. Create a **Cloud Firestore** database.
+5. Enable **Storage** and create its default bucket.
+6. Copy `firebase-config.example.js` to `firebase-config.js` and replace the placeholder values with your Firebase web app config.
+7. Make sure `firebase-config.js` stays untracked by Git. The web config identifies the Firebase project; Firestore and Storage Security Rules are what enforce access control.
+
+## 2. Run locally
+
+Install Node.js and the Firebase CLI:
 
 ```bash
-cmake -S . -B build
-cmake --build build --config Release
+npm install -g firebase-tools
+firebase login
+firebase use --add
+firebase emulators:start
 ```
 
-Run the generated executable:
-- Windows Visual Studio: `build\Release\smart-lost-found.exe`
-- Windows single-configuration generator: `build\smart-lost-found.exe`
-- macOS/Linux: `./build/smart-lost-found`
+For a quick local preview, you can also use any static web server from the project folder, such as the VS Code Live Server extension. Open the local URL it provides; do not open `index.html` directly as a `file://` URL because browser module imports may be blocked.
 
-Open http://localhost:8080. Set the `PORT` environment variable to choose a different port.
+## 3. Deploy
 
-## Storage
+From the repository root:
 
-The application creates `smart_lost_found.db` and an `uploads/` directory in its working directory. Keep both when backing up or moving the installation. Do not manually expose the database or upload directory as a public static directory.
+```bash
+firebase login
+firebase use --add
+firebase deploy --only firestore:rules,storage
+firebase deploy --only hosting
+```
 
-## Accounts and claims
+The first `firebase use --add` associates this checkout with your Firebase project. Choose the same project that matches the configuration in `firebase-config.js`. If the CLI says the Storage bucket is not created, create it in the Firebase Console and retry.
 
-Create an account, sign in, and submit a lost or found report. Signed-in users can submit a claim on another user's found report. The report owner can review claims from the Claims page and approve or reject each pending claim.
+Firebase Hosting serves the static frontend. Authentication, database records and photos are handled by Firebase services; no always-running server is required.
 
-## Production deployment
+## Matching approach
 
-Use HTTPS and set `COOKIE_SECURE=1` when deployed behind HTTPS. Keep the database and uploads on persistent storage, restrict filesystem permissions, and back up both. For a public deployment, configure HTTPS at the reverse proxy, rate limiting, email verification, password reset, abuse reporting, and operational backups before accepting real users. The current implementation is a functional project baseline, not a security-audited production service.
+Each report is compared with reports of the opposite type. A score from 0–100 combines:
+- **Keywords (55%)** — shared words across item name, category, description and location.
+- **Location (30%)** — matching or overlapping location text.
+- **Time (15%)** — reports closer together in time receive a higher score, with the time contribution tapering over 14 days.
+
+Suggestions with a score of at least 18% are shown for reports that belong to other users. This is a lightweight heuristic, not proof that two reports describe the same item. Verify ownership before handing an item over.
+
+## Security notes
+
+- Publish the included Firestore and Storage rules before accepting real reports.
+- Keep user contact details out of public report documents. The public report board does not display email addresses.
+- Claim requests are readable by the claimant and the report owner; only the report owner can approve or reject a pending claim.
+- Photo writes are restricted to a user's own Storage folder and image types/sizes are limited by rules.
+- For a real deployment, review Firebase Authentication settings, usage limits, abuse prevention and the current Firebase Storage billing/plan requirements.
+
+## Technology
+
+HTML · CSS · JavaScript modules · Firebase Authentication · Cloud Firestore · Firebase Storage · Firebase Hosting
