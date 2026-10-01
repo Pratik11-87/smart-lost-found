@@ -1,34 +1,39 @@
-# Smart Lost & Found — C++ web prototype
+# C++ Web Application
 
-This version has **no browser JavaScript**. The browser receives HTML and CSS; request handling and match scoring run in C++17.
+This folder contains the server-rendered web application for SMART LOST & FOUND. The interface is delivered as HTML and CSS; application logic and request handling run in C++17.
 
-## Included
-- Server-rendered landing page and report board
-- HTML form to report lost or found items
+## Features
+
+- Campus landing page and report board
+- Form for reporting lost and found items
 - C++ matching suggestions for found reports against lost reports
-- HTML escaping for submitted report text
-- Responsive CSS
+- Explanation of matching factors
+- HTML escaping for submitted report content
+- Responsive layout
 
-## Build and run
-Requirements: C++17 compiler, CMake 3.16+, and internet access on first configure to fetch the pinned cpp-httplib dependency.
+## Requirements
 
-From the repository root:
+- C++17 compiler
+- CMake 3.16 or newer
+- Internet access on the first configure to download the pinned cpp-httplib dependency
+
+## Build
+
+Run from the repository root:
 
 ```bash
 cmake -S cpp-web -B build
 cmake --build build --config Release
 ```
 
-Run the executable:
+Run the generated executable:
+
 - Windows Visual Studio generator: `build\Release\smart-lost-found-web.exe`
 - Windows single-configuration generator: `build\smart-lost-found-web.exe`
 - macOS/Linux: `./build/smart-lost-found-web`
 
-Open http://localhost:8080. Set the PORT environment variable to use another port.
+Open http://localhost:8080. Set the `PORT` environment variable to use a different port.
 
-## Important limitations
-This is a **prototype**, not yet a complete replacement for the original app. Reports are held in memory and disappear when the server stops. Firebase Authentication, Firestore persistence, photo uploads, user accounts, claims, and deployment integration are not implemented in this version. Do not deploy this prototype publicly or use it for real personal data.
+## Limitations
 
-The original React/Firebase application is retained in the repository until the C++ version is fully migrated and tested. HTML and CSS remain as browser presentation formats; application logic is in C++.
-
-Firebase's standard browser SDK is JavaScript. A JavaScript-free version needs the C++ server to call Firebase REST APIs with secure authentication/session handling, Firestore mapping, Storage support, and deployment changes. Those pieces must be implemented and tested before this prototype can replace the existing production app.
+This is a demonstration prototype. Reports are held in memory and disappear when the server stops. Accounts, persistent database storage, image uploads, claims, and production deployment are not implemented. Do not deploy publicly or use the prototype for real personal data until these features and appropriate security controls have been implemented and tested.
