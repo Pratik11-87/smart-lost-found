@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
 import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
-import { getFirestore, collection, addDoc, getDoc, doc, updateDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp, where } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+import { getFirestore, collection, addDoc, doc, updateDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp, where } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js';
 import { firebaseConfig } from './firebase-config.js';
 
@@ -15,6 +15,7 @@ let claims = [];
 let authMode = 'login';
 let unsubscribeReports = null;
 let unsubscribeClaims = null;
+let unsubscribeOwnerClaims = null;
 let toastTimer = null;
 
 $('year').textContent = new Date().getFullYear();
@@ -237,22 +238,36 @@ onAuthStateChanged(auth, (user) => {
   $('user-actions').classList.toggle('hidden', !user);
   $('user-label').textContent = user ? (user.displayName || user.email || 'Signed in') : '';
   if (unsubscribeClaims) unsubscribeClaims();
+  if (unsubscribeOwnerClaims) unsubscribeOwnerClaims();
+  unsubscribeClaims = null;
+  unsubscribeOwnerClaims = null;
   if (user) {
+    let ownClaims = [];
+    let ownerClaims = [];
+    const mergeClaims = () => {
+      const byId = new Map();
+      ownClaims.concat(ownerClaims).forEach((claim) => byId.set(claim.id, claim));
+      claims = Array.from(byId.values());
+      renderClaims();
+    };
     unsubscribeClaims = onSnapshot(query(collection(db, 'claims'), where('claimantId', '==', user.uid)), (snapshot) => {
-      const own = snapshot.docs.map((item) => ({id:item.id, ...item.data()}));
-      const ownerQuery = query(collection(db, 'claims'), where('reportOwnerId', '==', user.uid));
-      getDoc(doc(db, 'users', user.uid)).catch(() => null);
-      const seen = new Set(own.map((item) => item.id));
-      onSnapshot(ownerQuery, (ownerSnapshot) => {
-        ownerSnapshot.docs.forEach((item) => { if (!seen.has(item.id)) own.push({id:item.id, ...item.data()}); });
-        claims = own;
-        renderClaims();
-      }, (error) => { console.error('Claim listener:', error); claims = own; renderClaims(); });
-    }, (error) => { console.error('Claims:', error); $('claims-list').innerHTML = '<p class="muted">Could not load claims. Check Firestore rules.</p>'; });
+      ownClaims = snapshot.docs.map((item) => ({id:item.id, ...item.data()}));
+      mergeClaims();
+    }, (error) => {
+      console.error('Your claims:', error);
+      $('claims-list').innerHTML = '<p class="muted">Could not load your claims. Check Firestore rules.</p>';
+    });
+    unsubscribeOwnerClaims = onSnapshot(query(collection(db, 'claims'), where('reportOwnerId', '==', user.uid)), (snapshot) => {
+      ownerClaims = snapshot.docs.map((item) => ({id:item.id, ...item.data()}));
+      mergeClaims();
+    }, (error) => {
+      console.error('Claims on your reports:', error);
+      ownerClaims = [];
+      mergeClaims();
+    });
   } else {
     claims = [];
     renderClaims();
-    unsubscribeClaims = null;
   }
   renderReports();
 });
