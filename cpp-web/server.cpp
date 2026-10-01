@@ -8,6 +8,8 @@
 #include <array>
 #include <cctype>
 #include <cstdlib>
+#include <ctime>
+#include <stdexcept>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
