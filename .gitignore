@@ -1,10 +1,6 @@
 build/
-matcher-build/
 cmake-build-*/
 *.o
 *.obj
 *.exe
-*.dll
-*.so
-*.dylib
-.DS_Store
+smart-lost-found
