@@ -41,10 +41,9 @@ Install Node.js and the Firebase CLI:
 npm install -g firebase-tools
 firebase login
 firebase use --add
-firebase emulators:start
 ```
 
-For a quick local preview, you can also use any static web server from the project folder, such as the VS Code Live Server extension. Open the local URL it provides; do not open `index.html` directly as a `file://` URL because browser module imports may be blocked.
+For a quick local preview, use any static web server from the project folder, such as the VS Code Live Server extension. Open the local URL it provides; do not open `index.html` directly as a `file://` URL because browser module imports may be blocked.
 
 ## 3. Deploy
 
