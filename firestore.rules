@@ -2,11 +2,6 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn() { return request.auth != null; }
-    function ownsReport(reportId) {
-      return signedIn()
-        && get(/databases/$(database)/documents/reports/$(reportId)).data.ownerId == request.auth.uid;
-    }
-
     match /reports/{reportId} {
       allow read: if true;
       allow create: if signedIn()
@@ -31,7 +26,7 @@ service cloud.firestore {
         && request.resource.data.reportOwnerId is string
         && request.resource.data.reportOwnerId != request.auth.uid
         && request.resource.data.reportId is string
-        && ownsReport(request.resource.data.reportId)
+        && get(/databases/$(database)/documents/reports/$(request.resource.data.reportId)).data.type == 'found'
         && get(/databases/$(database)/documents/reports/$(request.resource.data.reportId)).data.ownerId == request.resource.data.reportOwnerId
         && request.resource.data.status == 'pending'
         && request.resource.data.reason is string
